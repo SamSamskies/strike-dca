@@ -1,0 +1,28 @@
+{
+  "name": "strike-dca",
+  "version": "0.1.0",
+  "description": "DCA bitcoin from Strike to a Lightning Address or LNURL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/SamSamskies/strike-dca.git"
+  },
+  "keywords": [
+    "bitcoin",
+    "lightning",
+    "strike"
+  ],
+  "author": "Sam Samskies",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SamSamskies/strike-dca/issues"
+  },
+  "homepage": "https://github.com/SamSamskies/strike-dca#readme",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "dotenv": "^16.0.3"
+  }
+}
