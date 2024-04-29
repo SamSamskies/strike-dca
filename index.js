@@ -28,6 +28,11 @@ if (!lnurlOrLightningAddress) {
   process.exit(1);
 }
 
+if (!sourceCurrency) {
+  console.log("Please set STRIKE_SOURCE_CURRENCY in .env file");
+  process.exit(1);
+}
+
 // amount in sats to DCA
 const amount = args[2];
 
@@ -38,7 +43,7 @@ setInterval(dca, process.env.STRIKE_DCA_INTERVAL_IN_SECONDS * 1000);
 async function dca() {
   try {
     console.log("creating payment quote");
-    const paymentQuoteId = await createPaymentQuote(invoice);
+    const paymentQuoteId = await createPaymentQuote();
     console.log("smash buying some corn");
     const result = await executePaymentQuote(paymentQuoteId);
     console.log("result");
@@ -59,7 +64,7 @@ async function createPaymentQuote() {
     },
     data: JSON.stringify({
       lnAddressOrUrl: lnurlOrLightningAddress,
-      sourceCurrency: "EUR",
+      sourceCurrency: sourceCurrency,
       amount: {
         "amount": (parseInt(amount) / 100000000).toString(),
         "currency": "BTC"
