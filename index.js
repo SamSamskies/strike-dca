@@ -6,6 +6,7 @@ const args = process.argv;
 const dcaInterval = process.env.STRIKE_DCA_INTERVAL_IN_SECONDS;
 const strikeApiKey = process.env.STRIKE_API_KEY;
 const lnurlOrLightningAddress = process.env.LNURL_OR_LIGHTNING_ADDRESS;
+const sourceCurrency = process.env.STRIKE_SOURCE_CURRENCY;
 
 if (args.length < 3) {
   console.log("Please provide amount in sats as an argument");
@@ -27,6 +28,11 @@ if (!lnurlOrLightningAddress) {
   process.exit(1);
 }
 
+if (!sourceCurrency) {
+  console.log("Please set STRIKE_SOURCE_CURRENCY in .env file");
+  process.exit(1);
+}
+
 // amount in sats to DCA
 const amount = args[2];
 
@@ -36,10 +42,8 @@ setInterval(dca, process.env.STRIKE_DCA_INTERVAL_IN_SECONDS * 1000);
 
 async function dca() {
   try {
-    console.log("fetching invoice");
-    const invoice = await fetchInvoice();
     console.log("creating payment quote");
-    const paymentQuoteId = await createPaymentQuote(invoice);
+    const paymentQuoteId = await createPaymentQuote();
     console.log("smash buying some corn");
     const result = await executePaymentQuote(paymentQuoteId);
     console.log("result");
@@ -49,26 +53,22 @@ async function dca() {
   }
 }
 
-async function fetchInvoice() {
-  const { data: invoice } = await axios(
-    `https://lnurlpay.com/api/invoice?lnUrlOrAddress=${lnurlOrLightningAddress}&amount=${amount}`
-  );
-
-  return invoice;
-}
-
-async function createPaymentQuote(invoice) {
+async function createPaymentQuote() {
   const { data } = await axios({
     method: "post",
-    url: "https://api.strike.me/v1/payment-quotes/lightning",
+    url: "https://api.strike.me/v1/payment-quotes/lightning/lnurl",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       Authorization: `Bearer ${strikeApiKey}`,
     },
     data: JSON.stringify({
-      lnInvoice: invoice,
-      sourceCurrency: "USD",
+      lnAddressOrUrl: lnurlOrLightningAddress,
+      sourceCurrency: sourceCurrency,
+      amount: {
+        "amount": (parseInt(amount) / 100000000).toString(),
+        "currency": "BTC"
+      },
     }),
   });
 
